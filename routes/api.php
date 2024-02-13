@@ -1,10 +1,12 @@
 <?php
 
+use App\Http\Middleware\ApiAuthMiddleware;
+use Illuminate\Support\Facades\Route;
+
+// import controllers
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\PostsController;
-use App\Http\Middleware\ApiAuthMiddleware;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\MediaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +32,8 @@ Route::middleware(ApiAuthMiddleware::class)->group(function () {
     Route::post("/posts", [PostsController::class, "createWordPressPost"]);
     Route::patch("/posts/{id}", [PostsController::class, "updateWordPressPost"]);
     Route::delete("/posts/{id}", [PostsController::class, "deleteWordPressPost"]);
+
+    Route::get("/media", [MediaController::class, "get"]);
+    Route::post("/media", [MediaController::class, "create"]);
+    Route::delete("/media/{id}", [MediaController::class, "delete"]);
 });
