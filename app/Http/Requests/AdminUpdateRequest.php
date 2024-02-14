@@ -25,7 +25,8 @@ class AdminUpdateRequest extends FormRequest
     {
         return [
             "name" => ['nullable', 'max:100'],
-            "password" => ['nullable', 'max:100']
+            "password" => ['nullable', 'max:100'],
+            "wp-password" => ['nullable', 'max:100']
         ];
     }
 

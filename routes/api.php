@@ -20,6 +20,7 @@ use App\Http\Controllers\MediaController;
 */
 
 Route::post('/admin/login', [AdminController::class, 'login']);
+Route::post('/admin/register', [AdminController::class, 'create']);
 
 Route::get("/posts", [PostsController::class, "get"]);
 Route::get("/posts/{id}", [PostsController::class, "getWordPressPostById"]);

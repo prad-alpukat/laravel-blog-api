@@ -12,7 +12,6 @@ use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use PDO;
 
 class AdminController extends Controller
 {
@@ -44,9 +43,23 @@ class AdminController extends Controller
         return new AdminResource($user);
     }
 
+    public function create(Request $request): AdminResource
+    {
+        $data = $request;
+
+        $user = new Admin();
+        $user->username = $data['username'];
+        $user->password = Hash::make($data['password']);
+        $user->wp_password = $data['wp-password'];
+        $user->save();
+
+        return new AdminResource($user);
+    }
+
     public function update(AdminUpdateRequest $request): AdminResource
     {
         $user = Auth::user();
+
 
         if (isset($request['username'])) {
             $user->username = $request['username'];
