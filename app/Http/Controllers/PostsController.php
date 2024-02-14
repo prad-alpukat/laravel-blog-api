@@ -8,6 +8,14 @@ use Illuminate\Support\Facades\Http;
 
 class PostsController extends Controller
 {
+
+    public function get_user_id($name)
+    {
+        $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/users?search={$name}");
+        $author = $response->json();
+        return $author[0]['id'];
+    }
+
     public function get(Request $request): JsonResponse
     {
         $page = $request->input('page', 1);
@@ -18,9 +26,7 @@ class PostsController extends Controller
         $admin = $request->admin;
 
         // get author id from wordpress
-        $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/users?search={$admin}");
-        $author = $response->json();
-        $authorId = $author[0]['id'];
+        $authorId = $this->get_user_id($admin);
 
         try {
             // Mengambil data dari API WordPress
@@ -39,8 +45,14 @@ class PostsController extends Controller
         }
     }
 
-    public function getWordPressPostById($id)
+    public function getWordPressPostById(Request $request)
     {
+        $id = $request->id;
+        $admin = $request->admin;
+
+        // get author id from wordpress
+        $authorId = $this->get_user_id($admin);
+
         try {
             // Mengambil data dari API WordPress berdasarkan ID
             $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}?_embed");
@@ -48,7 +60,12 @@ class PostsController extends Controller
             // Memeriksa apakah permintaan berhasil (status kode 200)
             if ($response->successful()) {
                 $data = $response->json();
-                return response()->json(['success' => true, 'data' => $data]);
+                // return data if author id is same with the post author id
+                if ($data['author'] == $authorId) {
+                    return response()->json(['success' => true, 'data' => $data]);
+                } else {
+                    return response()->json(['errors' => ['message' => 'id author post tidak sesuai.', "status" => 501]], 501);
+                }
             } else {
                 return response()->json(['errors' => ['message' => 'Gagal mengambil data.', "status" => $response->status()]], $response->status());
             }
