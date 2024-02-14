@@ -12,10 +12,11 @@ class PostsController extends Controller
     {
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
+        $search = $request->input('search', '');
 
         try {
             // Mengambil data dari API WordPress
-            $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts?_embed&page={$page}&per_page={$perPage}");
+            $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts?_embed&page={$page}&per_page={$perPage}&search={$search}");
 
             // Memeriksa apakah permintaan berhasil (status kode 200)
             if ($response->successful()) {
