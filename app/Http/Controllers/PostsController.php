@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
@@ -76,13 +77,19 @@ class PostsController extends Controller
 
     public function createWordPressPost(Request $request)
     {
+
+        // get author username
+        $admin = $request->admin;
+
+        // get wp_password admin
+        $wp_password = Admin::where('username', $admin)->first()->wp_password;
+
         try {
             $data = $request->all();
-            $password = env('WP_APP_PASSWORD');
             $data['status'] = 'publish';
 
             // Membuat post baru ke WordPress menggunakan Basic Auth
-            $response = Http::withBasicAuth('admin', $password)
+            $response = Http::withBasicAuth('admin', $wp_password)
                 ->post(env("WP_BASE_URL") . "/wp-json/wp/v2/posts", $data);
 
             // Memeriksa apakah permintaan berhasil (status kode 201)
@@ -100,12 +107,18 @@ class PostsController extends Controller
 
     public function updateWordPressPost(Request $request, $id)
     {
+
+        // get author username
+        $admin = $request->admin;
+
+        // get wp_password admin
+        $wp_password = Admin::where('username', $admin)->first()->wp_password;
+
         try {
             $data = $request->all();
-            $password = env('WP_APP_PASSWORD');
 
             // Melakukan pembaruan post WordPress menggunakan Basic Auth
-            $response = Http::withBasicAuth('admin', $password)
+            $response = Http::withBasicAuth('admin', $wp_password)
                 ->put(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}", [
                     ...$data
                 ]);
@@ -122,13 +135,17 @@ class PostsController extends Controller
         }
     }
 
-    public function deleteWordPressPost($id)
+    public function deleteWordPressPost(Request $request, $id)
     {
-        try {
-            $password = env('WP_APP_PASSWORD');
+        // get author username
+        $admin = $request->admin;
 
+        // get wp_password admin
+        $wp_password = Admin::where('username', $admin)->first()->wp_password;
+
+        try {
             // Menghapus post WordPress menggunakan Basic Auth
-            $response = Http::withBasicAuth('admin', $password)
+            $response = Http::withBasicAuth('admin', $wp_password)
                 ->delete(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}");
 
             // Memeriksa apakah permintaan berhasil (status kode 200)

@@ -27,14 +27,17 @@ Route::get("/{admin}/posts", [PostsController::class, "get"]);
 Route::get("/{admin}/posts/{id}", [PostsController::class, "getWordPressPostById"]);
 
 Route::middleware(ApiAuthMiddleware::class)->group(function () {
+    // admin routes
     Route::get("/admin/current", [AdminController::class, 'get']);
     Route::patch("/admin/current", [AdminController::class, 'update']);
     Route::delete("/admin/logout", [AdminController::class, "logout"]);
 
-    Route::post("/posts", [PostsController::class, "createWordPressPost"]);
-    Route::patch("/posts/{id}", [PostsController::class, "updateWordPressPost"]);
-    Route::delete("/posts/{id}", [PostsController::class, "deleteWordPressPost"]);
+    // article post routes with middleware
+    Route::post("/{admin}/posts", [PostsController::class, "createWordPressPost"]);
+    Route::patch("/{admin}/posts/{id}", [PostsController::class, "updateWordPressPost"]);
+    Route::delete("/{admin}/posts/{id}", [PostsController::class, "deleteWordPressPost"]);
 
+    // media routes
     Route::get("/media", [MediaController::class, "get"]);
     Route::post("/media", [MediaController::class, "create"]);
     Route::delete("/media/{id}", [MediaController::class, "delete"]);
