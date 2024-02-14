@@ -22,8 +22,9 @@ use App\Http\Controllers\MediaController;
 Route::post('/admin/login', [AdminController::class, 'login']);
 Route::post('/admin/register', [AdminController::class, 'create']);
 
-Route::get("/posts", [PostsController::class, "get"]);
-Route::get("/posts/{id}", [PostsController::class, "getWordPressPostById"]);
+// article posts
+Route::get("/{admin}/posts", [PostsController::class, "get"]);
+Route::get("/{admin}/posts/{id}", [PostsController::class, "getWordPressPostById"]);
 
 Route::middleware(ApiAuthMiddleware::class)->group(function () {
     Route::get("/admin/current", [AdminController::class, 'get']);

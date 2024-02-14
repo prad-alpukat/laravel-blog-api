@@ -14,9 +14,17 @@ class PostsController extends Controller
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search', '');
 
+        // get author username
+        $admin = $request->admin;
+
+        // get author id from wordpress
+        $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/users?search={$admin}");
+        $author = $response->json();
+        $authorId = $author[0]['id'];
+
         try {
             // Mengambil data dari API WordPress
-            $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts?_embed&page={$page}&per_page={$perPage}&search={$search}");
+            $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts?_embed&page={$page}&per_page={$perPage}&search={$search}&author={$authorId}");
 
             // Memeriksa apakah permintaan berhasil (status kode 200)
             if ($response->successful()) {
