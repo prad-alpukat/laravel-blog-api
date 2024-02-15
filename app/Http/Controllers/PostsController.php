@@ -6,16 +6,10 @@ use App\Models\Admin;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Http;
+use App\Helpers\Helper;
 
 class PostsController extends Controller
 {
-
-    public function get_user_id($name)
-    {
-        $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/users?search={$name}");
-        $author = $response->json();
-        return $author[0]['id'];
-    }
 
     public function get(Request $request): JsonResponse
     {
@@ -27,7 +21,7 @@ class PostsController extends Controller
         $admin = $request->admin;
 
         // get author id from wordpress
-        $authorId = $this->get_user_id($admin);
+        $authorId = (new Helper)->get_user_id($admin);
 
         try {
             // Mengambil data dari API WordPress
@@ -52,7 +46,7 @@ class PostsController extends Controller
         $admin = $request->admin;
 
         // get author id from wordpress
-        $authorId = $this->get_user_id($admin);
+        $authorId = (new Helper)->get_user_id($admin);
 
         try {
             // Mengambil data dari API WordPress berdasarkan ID

@@ -38,7 +38,8 @@ Route::middleware(ApiAuthMiddleware::class)->group(function () {
     Route::delete("/{admin}/posts/{id}", [PostsController::class, "deleteWordPressPost"]);
 
     // media routes
-    Route::get("/media", [MediaController::class, "get"]);
-    Route::post("/media", [MediaController::class, "create"]);
-    Route::delete("/media/{id}", [MediaController::class, "delete"]);
+    Route::get("/{admin}/media", [MediaController::class, "get"]);
+    Route::get("/{admin}/media/{id}", [MediaController::class, "getById"]);
+    Route::post("/{admin}/media", [MediaController::class, "create"]);
+    Route::delete("/{admin}/media/{id}", [MediaController::class, "delete"]);
 });

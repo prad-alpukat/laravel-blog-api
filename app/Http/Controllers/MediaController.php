@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
+use App\Helpers\Helper;
 
 class MediaController extends Controller
 {
@@ -11,6 +12,9 @@ class MediaController extends Controller
     {
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
+
+        $admin = $request->admin;
+        $authorId = (new Helper)->get_user_id($admin);
 
         try {
             // Mengambil data dari API WordPress
