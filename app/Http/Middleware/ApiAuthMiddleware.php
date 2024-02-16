@@ -7,6 +7,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Helpers\Helper;
 
 class ApiAuthMiddleware
 {
@@ -21,12 +22,14 @@ class ApiAuthMiddleware
         $token = $request->header('Authorization');
         $authenticate = true;
 
+        $admin = (new Helper)->get_user($request->admin);
+
         if (!$token) {
             $authenticate = false;
         }
 
         $user = Admin::where('token', $token)->first();
-        if (!$user) {
+        if (!$user || $user->username != $admin['name']) {
             $authenticate = false;
         } else {
             Auth::login($user);

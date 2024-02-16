@@ -28,9 +28,9 @@ Route::get("/{admin}/posts/{id}", [PostsController::class, "getWordPressPostById
 
 Route::middleware(ApiAuthMiddleware::class)->group(function () {
     // admin routes
-    Route::get("/admin/current", [AdminController::class, 'get']);
-    Route::patch("/admin/current", [AdminController::class, 'update']);
-    Route::delete("/admin/logout", [AdminController::class, "logout"]);
+    Route::get("/{admin}/current", [AdminController::class, 'get']);
+    Route::patch("/{admin}/current", [AdminController::class, 'update']);
+    Route::delete("/{admin}/logout", [AdminController::class, "logout"]);
 
     // article post routes with middleware
     Route::post("/{admin}/posts", [PostsController::class, "createWordPressPost"]);
