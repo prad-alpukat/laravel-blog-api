@@ -2,11 +2,27 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Blog API",
-        "version": "1.0"
+        "version": "1.0",
+        "description": "Ini Adalah API blog untuk final project frontend batch 5 Neuversity."
     },
     "servers": [
         {
-            "url": "https://api-fe-batch5.neuversity.id/"
+            "url": "https://api-fe-batch5.neuversity.id",
+            "description": "Production server"
+        },
+        {
+            "url": "http://localhost:8000",
+            "description": "localhost server"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Admin",
+            "description": "Admin adalah pengguna atau author yang memiliki akses penuh terhadap blog miliknya."
+        },
+        {
+            "name": "Posts",
+            "description": "Posts adalah artikel yang di buat oleh admin."
         }
     ],
     "paths": {
@@ -14,7 +30,7 @@
             "post": {
                 "description": "Login admin",
                 "tags": [
-                    "admin"
+                    "Admin"
                 ],
                 "requestBody": {
                     "content": {
@@ -66,16 +82,83 @@
                 }
             }
         },
+        "/api/admin/register": {
+            "post": {
+                "description": "Register admin <br> WP-Password diisi dengan WP Password Wordpress, Daftar di https://api-fe-batch5.neuversity.id/register-wp -> login -> users -> profile -> (scroll ke bawah) ->  New Application Password. <br> lihat tutorialnya di <a href='https://youtu.be/DIMjLdRoPbw?si=pKBquMAJwSfe4aJj' target='_blank'>https://youtu.be/DIMjLdRoPbw?si=pKBquMAJwSfe4aJj</a>",
+                "tags": [
+                    "Admin"
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "username": {
+                                        "type": "string",
+                                        "example": "username bebas"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password bebas"
+                                    },
+                                    "wp-password": {
+                                        "type": "string",
+                                        "example": "VpUC S4xS 4lAI sS8I xxxx xxxx",
+                                        "description": "WP-Password diisi dengan WP Password Wordpress, Daftar di https://api-fe-batch5.neuversity.id/register-wp -> login -> users -> profile -> (scroll ke bawah) ->  New Application Password. lihat tutorialnya di https://youtu.be/DIMjLdRoPbw?si=pKBquMAJwSfe4aJj"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success Register",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "number"
+                                                },
+                                                "username": {
+                                                    "type": "string"
+                                                },
+                                                "token": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/admin/current": {
             "get": {
                 "description": "Get current admin information",
                 "tags": [
-                    "admin"
+                    "Admin"
                 ],
                 "parameters": [
                     {
                         "name": "Authorization",
-                        "in": "header"
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -110,12 +193,16 @@
             "patch": {
                 "description": "Update current admin information",
                 "tags": [
-                    "admin"
+                    "Admin"
                 ],
                 "parameters": [
                     {
                         "name": "Authorization",
-                        "in": "header"
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -170,12 +257,16 @@
             "delete": {
                 "description": "Logout current admin",
                 "tags": [
-                    "admin"
+                    "Admin"
                 ],
                 "parameters": [
                     {
                         "name": "Authorization",
-                        "in": "header"
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -200,16 +291,43 @@
                 }
             }
         },
-        "/api/posts": {
+        "/api/{username}/posts": {
             "get": {
-                "description": "Get posts",
+                "description": "Get all posts",
                 "tags": [
-                    "posts"
+                    "Posts"
                 ],
                 "parameters": [
                     {
+                        "name": "username",
+                        "description": "Username of the admin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
                         "name": "search",
-                        "in": "query"
+                        "in": "query",
+                        "description": "Search article post",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "schema": {
+                            "type": "number"
+                        }
                     }
                 ],
                 "responses": {
@@ -236,12 +354,25 @@
             "post": {
                 "description": "Create article post",
                 "tags": [
-                    "posts"
+                    "Posts"
                 ],
                 "parameters": [
                     {
                         "name": "Authorization",
-                        "in": "header"
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "description": "Username of the admin",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "requestBody": {
@@ -261,14 +392,62 @@
                             }
                         }
                     }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success create a article post",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "object"
+                                        },
+                                        "errors": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },
-        "/api/posts/{id}": {
+        "/api/{username}/posts/{id}": {
             "get": {
-                "description": "Get single post data",
+                "description": "Get single post/article data",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "description": "Username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "description": "ID of the post",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
                 "tags": [
-                    "posts"
+                    "Posts"
                 ],
                 "responses": {
                     "200": {
@@ -293,8 +472,36 @@
             },
             "patch": {
                 "description": "Update a article post",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "description": "Username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "description": "ID of the post",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
                 "tags": [
-                    "posts"
+                    "Posts"
                 ],
                 "requestBody": {
                     "description": "Update a article post",
@@ -337,8 +544,36 @@
             },
             "delete": {
                 "description": "Delete a article post",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "username",
+                        "description": "Username",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "description": "ID of the post",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
                 "tags": [
-                    "posts"
+                    "Posts"
                 ],
                 "responses": {
                     "200": {
