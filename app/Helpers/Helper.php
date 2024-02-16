@@ -25,7 +25,7 @@ class Helper
         if (count($author) > 0) {
             return $author[0];
         } else {
-            return false;
+            return null;
         }
     }
 }

@@ -20,19 +20,44 @@ class ApiAuthMiddleware
     {
 
         $token = $request->header('Authorization');
+        $admin = (new Helper)->get_user($request->admin);
         $authenticate = true;
 
-        $admin = (new Helper)->get_user($request->admin);
+        // check admin token
+        if ($admin == null) {
+            return response()->json([
+                "errors" => [
+                    "message" => [
+                        "user author not found."
+                    ]
+                ]
+            ])->setStatusCode(404);
+        }
+
 
         if (!$token) {
             $authenticate = false;
         }
 
         $user = Admin::where('token', $token)->first();
-        if (!$user || $user->username != $admin['name']) {
+
+        if (!$user) {
             $authenticate = false;
+        } elseif ($user->username != $admin['name']) {
+            return response()->json([
+                "errors" => [
+                    "message" => [
+                        "unauthorized url parameter for this user"
+                    ]
+                ]
+            ])->setStatusCode(401);
         } else {
             Auth::login($user);
+        }
+
+        // check if user is not found
+        if ($admin == null) {
+            $authenticate = false;
         }
 
 

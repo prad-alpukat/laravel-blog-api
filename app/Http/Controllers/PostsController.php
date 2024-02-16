@@ -10,9 +10,9 @@ use App\Helpers\Helper;
 
 class PostsController extends Controller
 {
-
     public function get(Request $request): JsonResponse
     {
+        // url query parameters
         $page = $request->input('page', 1);
         $perPage = $request->input('per_page', 10);
         $search = $request->input('search', '');
@@ -24,6 +24,9 @@ class PostsController extends Controller
         $authorId = (new Helper)->get_user_id($admin);
 
         try {
+            // check if author id is null
+            if ($authorId == null) return response()->json(['errors' => ['message' => 'Author tidak ditemukan.', "status" => 404]], 404);
+
             // Mengambil data dari API WordPress
             $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts?_embed&page={$page}&per_page={$perPage}&search={$search}&author={$authorId}");
 
@@ -49,17 +52,21 @@ class PostsController extends Controller
         $authorId = (new Helper)->get_user_id($admin);
 
         try {
+            // check if author id is null
+            if ($authorId == null) return response()->json(['errors' => ['message' => 'Author tidak ditemukan.', "status" => 404]], 404);
+
             // Mengambil data dari API WordPress berdasarkan ID
             $response = Http::get(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}?_embed");
 
             // Memeriksa apakah permintaan berhasil (status kode 200)
             if ($response->successful()) {
                 $data = $response->json();
+
                 // return data if author id is same with the post author id
                 if ($data['author'] == $authorId) {
                     return response()->json(['success' => true, 'data' => $data]);
                 } else {
-                    return response()->json(['errors' => ['message' => 'id author post tidak sesuai.', "status" => 501]], 501);
+                    return response()->json(['errors' => ['message' => 'id author post tidak sesuai dengan post.', "status" => 501]], 501);
                 }
             } else {
                 return response()->json(['errors' => ['message' => 'Gagal mengambil data.', "status" => $response->status()]], $response->status());
@@ -99,7 +106,7 @@ class PostsController extends Controller
         }
     }
 
-    public function updateWordPressPost(Request $request, $id)
+    public function updateWordPressPost(Request $request, $admin, $id)
     {
 
         // get author username
@@ -113,23 +120,26 @@ class PostsController extends Controller
 
             // Melakukan pembaruan post WordPress menggunakan Basic Auth
             $response = Http::withBasicAuth('admin', $wp_password)
-                ->put(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}", [
-                    ...$data
-                ]);
+                ->put(env("WP_BASE_URL") . "/wp-json/wp/v2/posts/{$id}", $data);
 
             // Memeriksa apakah permintaan berhasil (status kode 200)
             if ($response->successful()) {
                 $data = $response->json();
-                return response()->json(['success' => true, 'data' => $data]);
+                // check is trash or not
+                if ($data['status'] === 'trash') {
+                    return response()->json(['success' => false, 'message' => 'Post has been deleted.'], 400);
+                } else {
+                    return response()->json(['success' => true, 'data' => $data]);
+                }
             } else {
-                return response()->json(['success' => false, 'message' => 'Gagal melakukan pembaruan post.'], $response->status());
+                return response()->json(['success' => false, 'message' => 'Failed to update post.'], $response->status());
             }
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
     }
 
-    public function deleteWordPressPost(Request $request, $id)
+    public function deleteWordPressPost(Request $request, $admin, $id)
     {
         // get author username
         $admin = $request->admin;
